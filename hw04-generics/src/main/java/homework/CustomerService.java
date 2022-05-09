@@ -1,23 +1,42 @@
 package homework;
 
-
+import java.util.AbstractMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
 
 public class CustomerService {
 
-    //todo: 3. надо реализовать методы этого класса
-    //важно подобрать подходящую Map-у, посмотрите на редко используемые методы, они тут полезны
+    private final TreeMap<Customer, String> customers;
+
+    public CustomerService() {
+        customers = new TreeMap<>((o1, o2) -> (int) (o1.getScores() - o2.getScores()));
+    }
 
     public Map.Entry<Customer, String> getSmallest() {
-        //Возможно, чтобы реализовать этот метод, потребуется посмотреть как Map.Entry сделан в jdk
-        return null; // это "заглушка, чтобы скомилировать"
+        var fe = customers.firstEntry();
+
+        return new AbstractMap.SimpleEntry<>(
+                new Customer(fe.getKey().getId(), fe.getKey().getName(), fe.getKey().getScores()),
+                fe.getValue()
+        );
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        return null; // это "заглушка, чтобы скомилировать"
+        if (customers.containsKey(customer)) {
+            var tailIterator = customers.tailMap(customer).entrySet().iterator();
+            try {
+                tailIterator.next();
+                return tailIterator.next();
+            } catch (NoSuchElementException e) {
+                return null;
+            }
+        } else {
+            return customers.ceilingEntry(customer);
+        }
     }
 
     public void add(Customer customer, String data) {
-
+        customers.put(customer, data);
     }
 }
